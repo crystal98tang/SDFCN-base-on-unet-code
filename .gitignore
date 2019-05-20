@@ -114,3 +114,4 @@ dmypy.json
 .pyre/
 
 ./SDFCN_membrane.hdf5
+*.hdf5
