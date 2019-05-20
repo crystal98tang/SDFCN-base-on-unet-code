@@ -112,3 +112,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+./SDFCN_membrane.hdf5
