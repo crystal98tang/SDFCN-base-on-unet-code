@@ -33,21 +33,21 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
 model = SDFCN()
 if run_mode == "train":
     myGene = trainGenerator(15,'temp_data/pitches/train','image','label',data_gen_args,save_to_dir = None)
-    model_checkpoint = ModelCheckpoint('SDFCN_membrane_0912.hdf5', monitor='loss',verbose=1, save_best_only=False)
+    model_checkpoint = ModelCheckpoint('SDFCN_membrane_0913.hdf5', monitor='loss',verbose=1, save_best_only=False)
     model.compile(optimizer=Adam(lr=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
-    model.fit_generator(myGene,steps_per_epoch=100, epochs=1e4,
-                        callbacks=[model_checkpoint,TensorBoard(log_dir="./log_0912")],
+    model.fit_generator(myGene,steps_per_epoch=100, epochs=1,
+                        callbacks=[model_checkpoint,TensorBoard(log_dir="./log_0913")],
                         shuffle=True,workers=2, use_multiprocessing=True)
 
 elif run_mode == "train_GPUs":
     myGene = trainGenerator(15, 'temp_data/pitches/train', 'image', 'label', data_gen_args, save_to_dir=None)
     parallel_model = multi_gpu_model(model, gpus=3)
-    checkpoint = ParallelModelCheckpoint(model, filepath='SDFCN_membrane_0913.hdf5', monitor='loss', verbose=1,
-                                         save_best_only=False)  # 解决多GPU运行下保存模型报错的问题
+    checkpoint = ParallelModelCheckpoint(model, filepath='MD.hdf5')  # 解决多GPU运行下保存模型报错的问题
+    model_checkpoint = ModelCheckpoint('MD.hdf5', monitor='loss', verbose=1, save_best_only=False)
     parallel_model.compile(optimizer=Adam(lr=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
-    parallel_model.fit_generator(myGene,steps_per_epoch=100,epochs=10,
+    parallel_model.fit_generator(myGene,steps_per_epoch=150,epochs=2,
                                  callbacks=[TensorBoard(log_dir="./log_0913_multgpu")],
-                                 shuffle=True) # workers=2, use_multiprocessing=True
+                                 shuffle=True, workers=2, use_multiprocessing=True) #
 elif run_mode == "test":
     model.load_weights("SDFCN_membrane_0912.hdf5")
 
@@ -56,10 +56,10 @@ num = 1000
 # 融合大图时，每张总共的小pitch
 each_image_size = 1
 # temp_data/pitches/test/image
-testGene = testGenerator("temp_data/temp_test",num * each_image_size)
+testGene = testGenerator("./temp_data/temp_test",num * each_image_size)
 results = model.predict_generator(testGene, num * each_image_size, verbose=1)
 
 if save_mode == "single":
-    saveResult("temp_data/temp_test",results)
+    saveResult("./temp_data/temp_test",results)
 elif save_mode == "full":
     saveBigResult("temp_data/full", results, init_box, each_image_size, num)

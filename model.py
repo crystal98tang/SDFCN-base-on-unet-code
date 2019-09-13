@@ -2,7 +2,7 @@
 from tensorflow.python.keras.models import *
 from tensorflow.python.keras.layers import *
 from tensorflow.python.keras.optimizers import *
-import pydensecrf.densecrf as dcrf
+# import pydensecrf.densecrf as dcrf
 
 def SDFCN(pretrained_weights = None,input_size = (256,256,3)):
     inputs = Input(input_size)
@@ -39,14 +39,19 @@ def SDFCN(pretrained_weights = None,input_size = (256,256,3)):
     activation = Activation('softmax')(conv8)
 
     #CRF
-    dcrf.DenseDRF2D(256,256,)
+    # dcrf.DenseCRF2D(256,256,2)
 
     model = Model(inputs=inputs,outputs=activation)
 
     # model.compile(optimizer=Adam(lr=1e-4), loss='binary_crossentropy', metrics=['accuracy'])
     # categorical_crossentropy binary_crossentropy
     if (pretrained_weights):
+        # one gpu
         model.load_weights(pretrained_weights)
+
+        # gpus--
+        model.set_model(pretrained_weights)
+
 
     return model
 
