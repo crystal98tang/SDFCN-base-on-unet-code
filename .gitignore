@@ -115,3 +115,4 @@ dmypy.json
 
 ./SDFCN_membrane.hdf5
 *.hdf5
+temp_data
